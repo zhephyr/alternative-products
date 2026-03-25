@@ -29,12 +29,14 @@ async def test_search_google_shopping_success():
         
         # Assertions
         assert result is not None
-        assert result["title"] == "Mock Product Desk"
+        assert result["name"] == "Mock Product Desk"
         assert result["price"] == 59.99
         assert result["link"] == "https://store.com/item"
         assert result["rating"] == 4.5
         assert result["reviewCount"] == 120
-        assert result["source"] == "Mock Store"
+        assert result["brand"] == "Mock Store"
+        assert result["category"] == "Search Result"
+        assert result["priceRange"] == "under-100"
 
 @pytest.mark.asyncio
 async def test_search_google_shopping_no_results():

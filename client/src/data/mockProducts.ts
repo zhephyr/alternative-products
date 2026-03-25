@@ -12,6 +12,7 @@ export interface MockProduct {
   imageUrl: string
   category: string
   priceRange: 'under-100' | '100-500' | '500-1000' | 'over-1000'
+  link?: string
 }
 
 export const MOCK_PRODUCTS: MockProduct[] = [

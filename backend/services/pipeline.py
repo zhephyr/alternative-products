@@ -54,3 +54,8 @@ async def process_visual_search(session_id: str, image_bytes: bytes, db: Session
 
     # Mark the session entirely completed when finished processing
     db.update_status(session_id, "completed")
+    
+    # Check if a user requested this search. If so, log to their history.
+    session = db.get_session(session_id)
+    if session and session.get("user_id"):
+        db.add_history(session["user_id"], session.get("image_url", "image.jpg"), session.get("results", []))

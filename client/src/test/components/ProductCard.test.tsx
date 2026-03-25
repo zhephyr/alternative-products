@@ -1,7 +1,22 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import ProductCard from '../../components/ProductCard'
 import type { MockProduct } from '../../data/mockProducts'
+import * as AuthContextModule from '../../contexts/AuthContext'
+
+const mockUseAuth = vi.fn(() => ({
+  isAuthenticated: true,
+  user: { username: 'testuser', id: '123' },
+  token: 'mock-token',
+  login: vi.fn(),
+  logout: vi.fn(),
+  register: vi.fn(),
+  isLoading: false
+}))
+
+vi.spyOn(AuthContextModule, 'useAuth').mockImplementation(mockUseAuth)
+
+vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) }))
 
 const mockProduct: MockProduct = {
   id: 'test-id',
@@ -16,6 +31,10 @@ const mockProduct: MockProduct = {
 }
 
 describe('ProductCard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('renders product details correctly', () => {
     render(<ProductCard product={mockProduct} />)
 

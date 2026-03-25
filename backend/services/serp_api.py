@@ -29,14 +29,28 @@ async def search_google_shopping(query: str) -> dict | None:
             # Take the first (most relevant) result
             top_result = results[0]
             
+            price = top_result.get("extracted_price", 0.0)
+            
+            # Compute price range for frontend filtering
+            if price < 100:
+                price_range = "under-100"
+            elif price <= 500:
+                price_range = "100-500"
+            elif price <= 1000:
+                price_range = "500-1000"
+            else:
+                price_range = "over-1000"
+                
             return {
-                "title": top_result.get("title", "Unknown"),
-                "price": top_result.get("extracted_price", 0.0),
-                "link": top_result.get("link", "#"),
-                "imageUrl": top_result.get("thumbnail", ""),
+                "name": top_result.get("title", "Unknown"),
+                "brand": top_result.get("source", "Unknown Store"),
+                "price": price,
                 "rating": top_result.get("rating", 0.0),
                 "reviewCount": top_result.get("reviews", 0),
-                "source": top_result.get("source", "Unknown Store"),
+                "imageUrl": top_result.get("thumbnail", ""),
+                "link": top_result.get("link", "#"),
+                "category": "Search Result",
+                "priceRange": price_range
             }
         except httpx.HTTPError:
             # Handle rate-limits or timeouts according to instructions

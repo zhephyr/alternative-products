@@ -3,6 +3,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import HomePage from '../../pages/HomePage'
 import { ThemeProvider } from '../../context/ThemeProvider'
 
+vi.mock('../../contexts/AuthContext', () => ({
+  useAuth: () => ({
+    isAuthenticated: false,
+    user: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    isLoading: false
+  })
+}))
+
 describe('HomePage', () => {
   beforeEach(() => {
     vi.useFakeTimers()

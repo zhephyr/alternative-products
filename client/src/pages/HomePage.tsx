@@ -13,19 +13,69 @@
  *   - Price Range + Product Rating filters
  *   - Sort By dropdown
  */
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Header from '../components/Header'
 import UploadZone from '../components/UploadZone'
 import ResultsSection from '../components/ResultsSection'
 import Footer from '../components/Footer'
+import type { MockProduct } from '../data/mockProducts'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export default function HomePage() {
-  // Track the currently uploaded image data URL
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [streamedProducts, setStreamedProducts] = useState<MockProduct[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const eventSourceRef = useRef<EventSource | null>(null)
 
-  function handleImageUpload(dataUrl: string) {
-    // Reset results for new image then show them
+  async function handleImageUpload(dataUrl: string, file: File) {
+    // Reset state for new search
     setUploadedImage(dataUrl)
+    setStreamedProducts([])
+    setIsSearching(true)
+    
+    // Close existing stream if any
+    if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+    }
+
+    try {
+      // 1. POST image to backend
+      const formData = new FormData()
+      formData.append('image', file)
+      
+      const res = await fetch(`${API_URL}/api/search`, {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (!res.ok) throw new Error("Failed to upload image")
+      
+      const { session_id } = await res.json()
+      
+      // 2. Connect to SSE stream
+      const sse = new EventSource(`${API_URL}/api/stream/${session_id}`)
+      eventSourceRef.current = sse
+      
+      sse.addEventListener('new_product', (e) => {
+        const newProduct = JSON.parse(e.data)
+        setStreamedProducts(prev => [...prev, newProduct])
+      })
+      
+      sse.addEventListener('complete', () => {
+        setIsSearching(false)
+        sse.close()
+      })
+      
+      sse.addEventListener('error', () => {
+        setIsSearching(false)
+        sse.close()
+      })
+      
+    } catch (err) {
+      console.error(err)
+      setIsSearching(false)
+    }
   }
 
   return (
@@ -67,8 +117,12 @@ export default function HomePage() {
             <UploadZone onImageUpload={handleImageUpload} uploadedImage={uploadedImage} />
           </section>
 
-          {/* ── Results section (hidden until image uploaded) ── */}
-          <ResultsSection isVisible={uploadedImage !== null} />
+          {/* ── Results section (receives streaming data) ── */}
+          <ResultsSection 
+            isVisible={uploadedImage !== null} 
+            isLoading={isSearching}
+            products={streamedProducts}
+          />
         </div>
       </main>
 

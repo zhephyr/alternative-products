@@ -9,10 +9,12 @@
  */
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useAuth } from '../contexts/AuthContext'
 import type { MockProduct } from '../data/mockProducts'
 
 interface ProductCardProps {
   product: MockProduct
+  onSelect?: (product: MockProduct) => void
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -38,21 +40,70 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, onSelect }: ProductCardProps) {
+  const { token, isAuthenticated } = useAuth()
   const [isFavorited, setIsFavorited] = useState(false)
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!isAuthenticated) {
+      alert("Please log in to save favorites.")
+      return
+    }
+
+    const newStatus = !isFavorited
+    setIsFavorited(newStatus)
+
+    try {
+      if (newStatus) {
+        await fetch('http://127.0.0.1:8000/api/user/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            product_id: product.id,
+            product_details: {
+              title: product.name,
+              price: `$${product.price.toLocaleString()}`,
+              image_url: product.imageUrl,
+              source: product.brand
+            }
+          })
+        })
+      } else {
+        await fetch(`http://127.0.0.1:8000/api/user/favorites/${product.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+      }
+    } catch (err) {
+      console.error('Failed to update favorite status', err)
+      // Revert if failed
+      setIsFavorited(!newStatus)
+    }
+  }
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
+      initial={{ opacity: 0, scale: 0.98, y: 16 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      whileHover={{ y: -8, boxShadow: '0 20px 60px rgba(0,0,0,0.10)' }}
+      transition={{ 
+        duration: 0.4, 
+        ease: [0.23, 1, 0.32, 1],
+        layout: { duration: 0.3 }
+      }}
       className="group relative rounded-lg border flex flex-col cursor-pointer"
       style={{
         backgroundColor: 'var(--color-card)',
         borderColor: '#e2e8f0',
       }}
-      whileHover={{ boxShadow: '0 20px 60px rgba(0,0,0,0.10)' }}
+      onClick={() => onSelect && onSelect(product)}
     >
       {/* Image */}
       <div className="aspect-[4/5] overflow-hidden rounded-t-lg relative">
@@ -64,10 +115,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Favorite button — hover reveal */}
         <button
-          onClick={(e) => {
-            e.stopPropagation()
-            setIsFavorited((v) => !v)
-          }}
+          onClick={toggleFavorite}
           className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100"
           style={{
             backgroundColor: isFavorited ? 'var(--color-primary)' : 'rgba(255,255,255,0.90)',

@@ -4,10 +4,11 @@
  * - Shows a loading spinner for ~1.5s with mock data revealed after
  * - Filter bar (Price Range, Product Rating) + Sort By dropdown
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ProductCard from './ProductCard'
-import { MOCK_PRODUCTS, type MockProduct } from '../data/mockProducts'
+import ProductModal from './ProductModal'
+import type { MockProduct } from '../data/mockProducts'
 
 type SortOption = 'relevant' | 'price-asc' | 'price-desc' | 'rating-desc'
 type PriceFilter = 'all' | 'under-100' | '100-500' | '500-1000' | 'over-1000'
@@ -87,50 +88,15 @@ function FilterSelect<T extends string>({
 
 interface ResultsSectionProps {
   isVisible: boolean
+  isLoading: boolean
+  products: MockProduct[]
 }
 
-export default function ResultsSection({ isVisible }: ResultsSectionProps) {
-  const [searchKey, setSearchKey] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [products, setProducts] = useState<MockProduct[]>([])
+export default function ResultsSection({ isVisible, isLoading, products }: ResultsSectionProps) {
   const [sort, setSort] = useState<SortOption>('relevant')
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all')
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all')
-
-  // Increment searchKey whenever the section becomes visible (new image uploaded)
-  useEffect(() => {
-    if (!isVisible) return
-    const id = setTimeout(() => {
-      setSearchKey((k) => k + 1)
-    }, 0)
-    return () => clearTimeout(id)
-  }, [isVisible])
-
-  // Run mock loading whenever searchKey increments (avoids synchronous setState in effect)
-  useEffect(() => {
-    if (searchKey === 0) return
-    let isActive = true
-
-    const startTimer = setTimeout(() => {
-      if (isActive) {
-        setIsLoading(true)
-        setProducts([])
-      }
-    }, 0)
-
-    const finishTimer = setTimeout(() => {
-      if (isActive) {
-        setProducts(MOCK_PRODUCTS)
-        setIsLoading(false)
-      }
-    }, 1500)
-
-    return () => {
-      isActive = false
-      clearTimeout(startTimer)
-      clearTimeout(finishTimer)
-    }
-  }, [searchKey])
+  const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null)
 
   // Apply filters and sort
   const displayedProducts = useMemo(() => {
@@ -227,11 +193,24 @@ export default function ResultsSection({ isVisible }: ResultsSectionProps) {
 
           {/* Products grid */}
           {!isLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.05
+                  }
+                }
+              }}
+            >
               {displayedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onSelect={setSelectedProduct} />
               ))}
-            </div>
+            </motion.div>
           )}
 
           {/* Empty state after filters */}
@@ -253,6 +232,14 @@ export default function ResultsSection({ isVisible }: ResultsSectionProps) {
             </div>
           )}
         </motion.section>
+      )}
+
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
       )}
     </AnimatePresence>
   )

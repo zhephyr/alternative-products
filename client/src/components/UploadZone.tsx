@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 interface UploadZoneProps {
   /** Called when an image is successfully loaded */
-  onImageUpload: (dataUrl: string) => void
+  onImageUpload: (dataUrl: string, file: File) => void
   /** Currently displayed image (if any) */
   uploadedImage: string | null
 }
@@ -31,7 +31,7 @@ export default function UploadZone({ onImageUpload, uploadedImage }: UploadZoneP
       const reader = new FileReader()
       reader.onload = (e) => {
         const result = e.target?.result
-        if (typeof result === 'string') onImageUpload(result)
+        if (typeof result === 'string') onImageUpload(result, file)
       }
       reader.readAsDataURL(file)
     },
@@ -277,11 +277,15 @@ export default function UploadZone({ onImageUpload, uploadedImage }: UploadZoneP
           {isDragging && (
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ 
+                opacity: 1,
+                backgroundColor: ['rgba(var(--color-primary-rgb, 181, 126, 220), 0.08)', 'rgba(var(--color-primary-rgb, 181, 126, 220), 0.15)', 'rgba(var(--color-primary-rgb, 181, 126, 220), 0.08)'] 
+              }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 rounded-2xl flex items-center justify-center"
-              style={{
-                backgroundColor: 'color-mix(in srgb, var(--color-primary) 8%, transparent)',
+              transition={{ 
+                backgroundColor: { repeat: Infinity, duration: 1.5 },
+                opacity: { duration: 0.2 }
               }}
             >
               <p className="text-lg font-bold" style={{ color: 'var(--color-primary)' }}>

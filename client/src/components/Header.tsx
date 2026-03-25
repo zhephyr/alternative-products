@@ -6,8 +6,13 @@
  * - Profile avatar placeholder
  * - Theme switcher dropdown (top-right)
  */
+import { useState } from 'react'
 import { useTheme } from '../context/useTheme'
 import type { Theme } from '../context/ThemeCore'
+import { useAuth } from '../contexts/AuthContext'
+import AuthModal from './AuthModal'
+import HistoryModal from './HistoryModal'
+import FavoritesModal from './FavoritesModal'
 
 const THEME_OPTIONS: { value: Theme; label: string; dot: string }[] = [
   { value: 'lavender', label: 'Lavender & Sunflower', dot: '#B57EDC' },
@@ -113,63 +118,136 @@ function ThemeSwitcher() {
 }
 
 export default function Header() {
+  const { isAuthenticated, user, logout } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false)
+
   return (
-    <header
-      className="sticky top-0 z-50 border-b shadow-sm"
-      style={{
-        backgroundColor: 'rgba(255,255,255,0.80)',
-        backdropFilter: 'blur(12px)',
-        borderColor: 'var(--color-border)',
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <LogoBadge />
+    <>
+      <header
+        className="sticky top-0 z-50 border-b shadow-sm"
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.80)',
+          backdropFilter: 'blur(12px)',
+          borderColor: 'var(--color-border)',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <LogoBadge />
 
-        {/* Nav links */}
-        <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
-          <button
-            className="flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-70"
-            style={{ color: 'var(--color-text-muted)' }}
-            id="nav-usage-history"
-          >
-            <span className="material-symbols-outlined text-base leading-none" aria-hidden="true">
-              history
-            </span>
-            Usage History
-          </button>
-          <button
-            className="flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-70"
-            style={{ color: 'var(--color-text-muted)' }}
-            id="nav-saved-searches"
-          >
-            <span className="material-symbols-outlined text-base leading-none" aria-hidden="true">
-              bookmark
-            </span>
-            Saved Searches
-          </button>
-        </nav>
+          {/* Right side controls */}
+          <div className="flex items-center gap-6">
+            {/* Nav links (Authenticated only) */}
+            {isAuthenticated ? (
+              <nav className="hidden md:flex items-center gap-6 mr-2" aria-label="Main navigation">
+                <button
+                  className="flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-70"
+                  style={{ color: 'var(--color-text-muted)' }}
+                  id="nav-usage-history"
+                  onClick={() => setShowHistoryModal(true)}
+                >
+                  <span className="material-symbols-outlined text-base leading-none" aria-hidden="true">
+                    history
+                  </span>
+                  Usage History
+                </button>
+                <button
+                  className="flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-70"
+                  style={{ color: 'var(--color-text-muted)' }}
+                  id="nav-saved-searches"
+                  onClick={() => setShowFavoritesModal(true)}
+                >
+                  <span className="material-symbols-outlined text-base leading-none" aria-hidden="true">
+                    bookmark
+                  </span>
+                  Saved Searches
+                </button>
+              </nav>
+            ) : null}
 
-        {/* Right side: theme switcher + profile */}
-        <div className="flex items-center gap-3">
-          <ThemeSwitcher />
-          {/* Profile avatar placeholder */}
-          <button
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
-            style={{ backgroundColor: 'var(--color-primary-light)' }}
-            id="nav-profile-btn"
-            aria-label="User profile"
-          >
-            <span
-              className="material-symbols-outlined text-lg leading-none"
-              style={{ color: 'var(--color-primary)' }}
-              aria-hidden="true"
-            >
-              person
-            </span>
-          </button>
+            {/* Theme & Profile / Auth Button */}
+            <div className="flex items-center gap-3">
+              <ThemeSwitcher />
+              
+              {/* Profile or Login */}
+              {isAuthenticated ? (
+                <div className="relative group">
+                  <button
+                    className="flex items-center justify-center w-9 h-9 rounded-full shadow-sm transition-colors"
+                    style={{ backgroundColor: 'var(--color-primary-light)' }}
+                    id="nav-profile-btn"
+                    aria-label="User profile"
+                    aria-haspopup="menu"
+                  >
+                    <span
+                      className="material-symbols-outlined text-lg leading-none"
+                      style={{ color: 'var(--color-primary)' }}
+                      aria-hidden="true"
+                    >
+                      person
+                    </span>
+                  </button>
+
+                  <div
+                    className="absolute right-0 top-full mt-1 w-48 rounded-lg shadow-lg border opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-150 z-50 flex flex-col overflow-hidden"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      backdropFilter: 'blur(8px)',
+                      borderColor: 'var(--color-border)',
+                    }}
+                    role="menu"
+                  >
+                    <div 
+                      className="px-4 py-3 border-b"
+                      style={{ borderColor: 'var(--color-border)' }}
+                    >
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-text)' }}>
+                        {user?.username}
+                      </p>
+                    </div>
+                    <button
+                      role="menuitem"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors hover:bg-black/5"
+                      style={{ color: 'var(--color-error, #ef4444)' }}
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to log out?')) {
+                          logout()
+                        }
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-base leading-none">
+                        logout
+                      </span>
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className="px-4 py-2 rounded-lg text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: 'var(--color-primary)' }}
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  Log In
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      
+      {/* Conditionally render Modals */}
+      {showAuthModal && (
+        <AuthModal onClose={() => setShowAuthModal(false)} />
+      )}
+      {showHistoryModal && (
+        <HistoryModal onClose={() => setShowHistoryModal(false)} />
+      )}
+      {showFavoritesModal && (
+        <FavoritesModal onClose={() => setShowFavoritesModal(false)} />
+      )}
+    </>
   )
 }
