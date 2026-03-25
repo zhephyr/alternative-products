@@ -174,7 +174,3 @@ This project was built entirely using an **agentic AI workflow**. The developmen
 ### AI ISSUES
 
 This was generated using antigravity during March of 2026 during the token crisis. Rate limits were reduced by 92% due to malicious monetization which forced switching of agents and much more manual intervention than Ralphing should result in. Furthermore, reset timers have switched from 5 hours to 7 days. Unfortunately, the current rate limits are unusuable unless you are paying for the $250/month plan so this attempt at overall automation was, in the end, a failure.
-
-### AI ISSUES
-
-This was generated using antigravity during March of 2026 during the token crisis. Rate limits were reduced by 92% due to malicious monetization which forced switching of agents and much more manual intervention than Ralphing should result in. Furthermore, reset timers have switched from 5 hours to 7 days. Unfortunately, the current rate limits are unusuable unless you are paying for the $250/month plan so this attempt at overall automation was, in the end, a failure.
