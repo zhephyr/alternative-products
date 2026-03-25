@@ -58,12 +58,14 @@ function LogoBadge() {
 
 function ThemeSwitcher() {
   const { theme, setTheme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="relative group">
+    <div className="relative">
       {/* Trigger button */}
       <button
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-black/5"
         style={{ color: 'var(--color-text-muted)' }}
         id="theme-switcher-btn"
         aria-haspopup="listbox"
@@ -82,37 +84,45 @@ function ThemeSwitcher() {
         </span>
       </button>
 
-      {/* Dropdown — appears on hover */}
-      <div
-        className="absolute right-0 top-full mt-1 w-52 rounded-lg shadow-lg border opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-150 z-50"
-        style={{
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          backdropFilter: 'blur(8px)',
-          borderColor: 'var(--color-border)',
-        }}
-        role="listbox"
-        aria-label="Color themes"
-      >
-        {THEME_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            role="option"
-            aria-selected={theme === opt.value}
-            onClick={() => setTheme(opt.value)}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors first:rounded-t-lg last:rounded-b-lg"
-            style={{
-              color: 'var(--color-text)',
-              backgroundColor: theme === opt.value ? 'rgba(0,0,0,0.04)' : 'transparent',
-            }}
-          >
-            <span
-              className="w-3 h-3 rounded-full flex-shrink-0"
-              style={{ backgroundColor: opt.dot }}
-            />
-            {opt.label}
-          </button>
-        ))}
-      </div>
+      {/* Dropdown — appears on click */}
+      {isOpen && (
+        <div
+          className="absolute right-0 top-full mt-2 w-56 rounded-xl shadow-xl border z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.98)',
+            backdropFilter: 'blur(12px)',
+            borderColor: 'var(--color-border)',
+          }}
+          role="listbox"
+          aria-label="Color themes"
+        >
+          {THEME_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              role="option"
+              aria-selected={theme === opt.value}
+              onClick={() => {
+                setTheme(opt.value)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-left transition-all hover:bg-black/5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] group"
+              style={{
+                color: 'var(--color-text)',
+                backgroundColor: theme === opt.value ? 'rgba(0,0,0,0.03)' : 'transparent',
+              }}
+            >
+              <span
+                className="w-3.5 h-3.5 rounded-full flex-shrink-0 ring-2 ring-transparent group-hover:ring-black/10 transition-all"
+                style={{ backgroundColor: opt.dot }}
+              />
+              {opt.label}
+              {theme === opt.value && (
+                <span className="material-symbols-outlined text-sm ml-auto opacity-50">check</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -122,6 +132,7 @@ export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showFavoritesModal, setShowFavoritesModal] = useState(false)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
 
   return (
     <>
@@ -173,9 +184,10 @@ export default function Header() {
               
               {/* Profile or Login */}
               {isAuthenticated ? (
-                <div className="relative group">
+                <div className="relative">
                   <button
-                    className="flex items-center justify-center w-9 h-9 rounded-full shadow-sm transition-colors"
+                    onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                    className="flex items-center justify-center w-9 h-9 rounded-full shadow-sm transition-colors hover:bg-black/5"
                     style={{ backgroundColor: 'var(--color-primary-light)' }}
                     id="nav-profile-btn"
                     aria-label="User profile"
@@ -190,39 +202,45 @@ export default function Header() {
                     </span>
                   </button>
 
-                  <div
-                    className="absolute right-0 top-full mt-1 w-48 rounded-lg shadow-lg border opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-150 z-50 flex flex-col overflow-hidden"
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.95)',
-                      backdropFilter: 'blur(8px)',
-                      borderColor: 'var(--color-border)',
-                    }}
-                    role="menu"
-                  >
-                    <div 
-                      className="px-4 py-3 border-b"
-                      style={{ borderColor: 'var(--color-border)' }}
-                    >
-                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-text)' }}>
-                        {user?.username}
-                      </p>
-                    </div>
-                    <button
-                      role="menuitem"
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-left transition-colors hover:bg-black/5"
-                      style={{ color: 'var(--color-error, #ef4444)' }}
-                      onClick={() => {
-                        if (window.confirm('Are you sure you want to log out?')) {
-                          logout()
-                        }
+                  {showProfileDropdown && (
+                    <div
+                      className="absolute right-0 top-full mt-2 w-52 rounded-xl shadow-xl border z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.98)',
+                        backdropFilter: 'blur(12px)',
+                        borderColor: 'var(--color-border)',
                       }}
+                      role="menu"
                     >
-                      <span className="material-symbols-outlined text-base leading-none">
-                        logout
-                      </span>
-                      Logout
-                    </button>
-                  </div>
+                      <div 
+                        className="px-4 py-3 border-b"
+                        style={{ borderColor: 'var(--color-border)' }}
+                      >
+                        <p className="text-xs font-bold uppercase tracking-wider opacity-50 mb-0.5" style={{ color: 'var(--color-text)' }}>
+                          Account
+                        </p>
+                        <p className="text-sm font-bold truncate" style={{ color: 'var(--color-text)' }}>
+                          {user?.username}
+                        </p>
+                      </div>
+                      <button
+                        role="menuitem"
+                        className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-left transition-all hover:bg-black/5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                        style={{ color: 'var(--color-error, #ef4444)' }}
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to log out?')) {
+                            logout()
+                            setShowProfileDropdown(false)
+                          }
+                        }}
+                      >
+                        <span className="material-symbols-outlined text-base leading-none">
+                          logout
+                        </span>
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <button

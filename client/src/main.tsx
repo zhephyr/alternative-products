@@ -13,7 +13,9 @@ console.info('[alt.it Client] Application successfully mounted to React DOM.')
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <AppRouter />
+      <ThemeProvider>
+        <AppRouter />
+      </ThemeProvider>
     </AuthProvider>
   </StrictMode>,
 )
