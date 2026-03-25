@@ -87,7 +87,7 @@ function ThemeSwitcher() {
       {/* Dropdown — appears on click */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 w-56 rounded-xl shadow-xl border z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
+          className="absolute right-0 top-full mt-2 w-56 rounded-xl shadow-xl border z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-1 duration-200"
           style={{
             backgroundColor: 'rgba(255,255,255,0.98)',
             backdropFilter: 'blur(12px)',
@@ -105,7 +105,7 @@ function ThemeSwitcher() {
                 setTheme(opt.value)
                 setIsOpen(false)
               }}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-left transition-all hover:bg-black/5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] group"
+              className="w-full flex items-center gap-3 px-3 py-3 text-sm font-semibold text-left rounded-lg transition-all hover:bg-black/5 hover:shadow-[0_3px_10px_rgba(0,0,0,0.08)] relative hover:z-10 group"
               style={{
                 color: 'var(--color-text)',
                 backgroundColor: theme === opt.value ? 'rgba(0,0,0,0.03)' : 'transparent',
@@ -204,7 +204,7 @@ export default function Header() {
 
                   {showProfileDropdown && (
                     <div
-                      className="absolute right-0 top-full mt-2 w-52 rounded-xl shadow-xl border z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
+                      className="absolute right-0 top-full mt-2 w-52 rounded-xl shadow-xl border z-50 flex flex-col p-1.5 animate-in fade-in slide-in-from-top-1 duration-200"
                       style={{
                         backgroundColor: 'rgba(255,255,255,0.98)',
                         backdropFilter: 'blur(12px)',
@@ -213,7 +213,7 @@ export default function Header() {
                       role="menu"
                     >
                       <div 
-                        className="px-4 py-3 border-b"
+                        className="px-4 py-3 mb-1 border-b"
                         style={{ borderColor: 'var(--color-border)' }}
                       >
                         <p className="text-xs font-bold uppercase tracking-wider opacity-50 mb-0.5" style={{ color: 'var(--color-text)' }}>
@@ -225,7 +225,7 @@ export default function Header() {
                       </div>
                       <button
                         role="menuitem"
-                        className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-left transition-all hover:bg-black/5 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                        className="w-full flex items-center gap-3 px-3 py-3 text-sm font-semibold text-left rounded-lg transition-all hover:bg-black/5 hover:shadow-[0_3px_10px_rgba(0,0,0,0.08)] relative hover:z-10"
                         style={{ color: 'var(--color-error, #ef4444)' }}
                         onClick={() => {
                           if (window.confirm('Are you sure you want to log out?')) {
