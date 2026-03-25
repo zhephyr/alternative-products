@@ -1,111 +1,148 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/*
+ * Global styles for alt.it — Visual Product Search SPA
+ * Implements the three-theme design system from DESIGN.md:
+ *   - Theme A: Lavender & Sunflower (light only)
+ *   - Theme B: Terracotta & Sage (light + dark)
+ *   - Theme C: Deep Teal & Coral (light + dark)
+ *
+ * Tailwind CSS v4 is used alongside these custom properties.
+ * Theme variables are set on [data-theme] attributes applied to <html>.
+ */
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap');
+@import 'tailwindcss';
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ─── Base reset & font ─────────────────────────────────────── */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+  html {
+    font-family: 'Epilogue', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    background-image: var(--dot-grid);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
 }
 
-@media (prefers-color-scheme: dark) {
+/* ─── Shared structural tokens (all themes) ─────────────────── */
+@layer base {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+    /* Structural — never change between themes */
+    --color-text: #0f172a;
+    --color-text-muted: #64748b;
+    --color-border: #e2e8f0;
+    --color-card: #ffffff;
+    --color-star: #f59e0b;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+    /* Set by theme below */
+    --color-bg: #fdfbf9;
+    --color-primary: #b57edc;
+    --color-primary-dark: #9370db;
+    --color-primary-light: #e6e6fa;
+    --color-accent: #ffda03;
+    --color-accent-hover: #e5c402;
+    --dot-color: #b57edc;
+    --dot-bg: #fcfaff;
+    --dot-grid: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+    --dot-size: 24px;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+/* ─── Theme A — Lavender & Sunflower ────────────────────────── */
+@layer base {
+  [data-theme='lavender'] {
+    --color-bg: #fcfaff;
+    --color-primary: #b57edc;
+    --color-primary-dark: #9370db;
+    --color-primary-light: #e6e6fa;
+    --color-accent: #ffda03;
+    --color-accent-hover: #e5c402;
+    --dot-color: #b57edc;
+    --dot-bg: #fcfaff;
+    --dot-grid: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
   }
 }
-p {
-  margin: 0;
+
+/* ─── Theme B — Terracotta & Sage ───────────────────────────── */
+@layer base {
+  [data-theme='terracotta'] {
+    --color-bg: #fdfbf9;
+    --color-primary: #e37059;
+    --color-primary-dark: #c85a43;
+    --color-primary-light: #fde8e4;
+    --color-accent: #fbbf24;
+    --color-accent-hover: #f59e0b;
+    --dot-color: #e8e4e1;
+    --dot-grid: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+  }
+
+  [data-theme='terracotta'].dark {
+    --color-bg: #1c1815;
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-border: #2e303a;
+    --color-card: #1f2028;
+    --dot-color: #2d2d2d;
+  }
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* ─── Theme C — Deep Teal & Coral ───────────────────────────── */
+@layer base {
+  [data-theme='teal'] {
+    --color-bg: #fdfbf9;
+    --color-primary: #008080;
+    --color-primary-dark: #006666;
+    --color-primary-light: #e0f2f1;
+    --color-accent: #ff7f50;
+    --color-accent-hover: #ff6535;
+    --dot-color: #e8e4e1;
+    --dot-grid: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+  }
+
+  [data-theme='teal'].dark {
+    --color-bg: #1c1815;
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-border: #2e303a;
+    --color-card: #1f2028;
+    --dot-color: #2d2d2d;
+  }
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* ─── Dot grid background ───────────────────────────────────── */
+@layer base {
+  body {
+    background-size: var(--dot-size) var(--dot-size);
+  }
+}
+
+/* ─── Utility: theme-aware CSS custom property consumers ───── */
+@layer utilities {
+  .bg-page {
+    background-color: var(--color-bg);
+  }
+  .bg-card {
+    background-color: var(--color-card);
+  }
+  .text-primary {
+    color: var(--color-primary);
+  }
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .border-primary {
+    border-color: var(--color-primary);
+  }
 }
