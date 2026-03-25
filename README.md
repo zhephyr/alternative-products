@@ -109,12 +109,12 @@ Themes are driven by Tailwind CSS variables — a single source of truth. The ac
 
 | Phase | Goal | Status |
 |---|---|---|
-| 1 | Frontend scaffold (Vite + React + Tailwind) | ⬜ Pending |
-| 2 | UI layout, theme switcher, upload zone, mock results | ⬜ Pending |
-| 3 | Backend API, AI search agent, SerpAPI integration | ⬜ Pending |
-| 4 | Frontend ↔ Backend integration, auth, saved products | ⬜ Pending |
-| 5 | End-to-end tests (Playwright / Cypress) | ⬜ Pending |
-| 6 | Polish — animations, drag feedback, hover states | ⬜ Pending |
+| 1 | Frontend scaffold (Vite + React + Tailwind) | ✅ Complete |
+| 2 | UI layout, theme switcher, upload zone, mock results | ✅ Complete |
+| 3 | Backend API, AI search agent, SerpAPI integration | ✅ Complete |
+| 4 | Frontend ↔ Backend integration, auth, saved products | ✅ Complete |
+| 5 | End-to-end tests (Playwright / Cypress) | ✅ Complete |
+| 6 | Polish — animations, drag feedback, hover states | ✅ Complete |
 
 ---
 
@@ -155,21 +155,18 @@ The application implements resilient error handling throughout:
 
 ---
 
-## AI Disclosure
+## AI & Development Disclosure
 
-This project was designed and built **primarily with AI assistance**. The architecture, code, UI design, and this documentation were all generated through an agentic AI workflow.
+This project was built entirely using an **agentic AI workflow**. The development followed the structured roadmap and guardrails defined in [Initial Mission.md](./Initial%20Mission.md).
 
-### Tools Used
+### Tools & Role
 
 | Tool | Role |
 |---|---|
-| [Google Antigravity (Gemini)](https://deepmind.google/) | Autonomous coding agent — planning, implementation, testing, and documentation |
-| [Google Stitch](https://stitch.withgoogle.com/) | UI design & screen generation for the frontend SPA |
-
-> **Note:** Human oversight was maintained throughout. All AI-generated output was reviewed and the project direction was guided by a human author.
+| [Google Antigravity](https://deepmind.google/) | Primary AI Agent — handled all planning, backend/frontend implementation, TDD, E2E testing, and final polish. |
+| [Google Stitch](https://stitch.withgoogle.com/) | Design Foundation — provided the initial UI mockups and design system used by the agent. |
+| [Playwright](https://playwright.dev/) | Testing Infrastructure — used by the AI to verify full-stack user journeys. |
 
 ---
 
-## License
-
-This project is licensed under the [MIT License](./LICENSE).
+> **Built with 💜 by Antigravity**
