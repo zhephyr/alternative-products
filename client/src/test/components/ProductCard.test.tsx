@@ -11,8 +11,8 @@ const mockProduct: MockProduct = {
   rating: 4.5,
   imageUrl: 'https://example.com/chair.jpg',
   priceRange: '100-500',
-  materials: ['wood'],
-  dimensions: '1x1',
+  reviewCount: 100,
+  category: 'Furniture',
 }
 
 describe('ProductCard', () => {
