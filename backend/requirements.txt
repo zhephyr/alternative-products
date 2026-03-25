@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+tinydb
+python-multipart
+httpx
+beautifulsoup4
+openai
+anthropic
+pytest
+pytest-asyncio
+pytest-httpx
