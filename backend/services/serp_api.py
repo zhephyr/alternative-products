@@ -33,16 +33,16 @@ _SKIP_ORGANIC_DOMAINS = frozenset({
 })
 
 
-async def search_google_organic(ai_data: dict) -> list[str]:
+async def fetch_candidate_urls(ai_data: dict) -> list[dict]:
     """
-    Uses SerpAPI's organic Google Search engine to find candidate product
-    page URLs from AI-extracted image attributes.
+    Uses SerpAPI's organic Google Search engine to find candidate products.
 
-    Builds a search query from the ``category``, ``color``, and ``keywords``
-    fields in *ai_data*, requests up to 10 organic results, and returns a
-    filtered list of URLs that excludes social media and non-store domains.
+    Builds a search query from the ``category``, ``color`` and ``keywords``
+    attributes in *ai_data*. Returns a filtered list of product matches:
+      [{"link": "...", "title": "...", "source": "..."}, ...]
 
-    Returns [] on any HTTP or parsing error so the pipeline degrades gracefully.
+    Excludes known social media and non-store domains.
+    Returns [] on any error.
     """
     # Build a human-readable product search query from AI attributes.
     category = ai_data.get("category", "")
@@ -66,11 +66,13 @@ async def search_google_organic(ai_data: dict) -> list[str]:
             data = response.json()
 
             organic_results = data.get("organic_results", [])
-            urls: list[str] = []
+            matches: list[dict] = []
 
             for result in organic_results:
                 link = result.get("link", "")
-                if not link:
+                title = result.get("title", "")
+                source = result.get("source", "")
+                if not link or not title:
                     continue
 
                 # Skip known non-store domains.
@@ -78,11 +80,15 @@ async def search_google_organic(ai_data: dict) -> list[str]:
                 if any(skip in domain for skip in _SKIP_ORGANIC_DOMAINS):
                     continue
 
-                urls.append(link)
-                if len(urls) >= 10:
+                matches.append({
+                    "link": link,
+                    "title": title,
+                    "source": source
+                })
+                if len(matches) >= 10:
                     break
 
-            return urls
+            return matches
 
         except httpx.HTTPError:
             return []
@@ -110,7 +116,7 @@ async def search_google_shopping(query: str) -> dict | None:
             results = data.get("shopping_results", [])
             if not results:
                 return None
-
+            
             # Take the first (most relevant) result.
             top_result = results[0]
             price = top_result.get("extracted_price", 0.0)

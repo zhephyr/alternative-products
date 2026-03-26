@@ -94,14 +94,13 @@ async def test_search_endpoint_returns_session_id():
 # ---------------------------------------------------------------------------
 
 # Decorator order: bottom decorator → first function arg
-@patch("services.pipeline.analyze_image")           # AsyncMock auto-created; 4th arg
-@patch("services.pipeline.search_google_organic")   # AsyncMock auto-created; 3rd arg
-@patch("services.scraper.httpx.AsyncClient")        # MagicMock; 2nd arg
+@patch("services.pipeline.analyze_image")           # AsyncMock auto-created; 3rd arg
+@patch("services.pipeline.fetch_candidate_urls")    # AsyncMock auto-created; 2nd arg
 @patch("services.pipeline.search_google_shopping")  # AsyncMock auto-created; 1st arg
-def test_pipeline_runs_real_logic_and_saves_history(
+@pytest.mark.asyncio
+async def test_pipeline_runs_real_logic_and_saves_history(
     mock_shopping,
-    mock_http_client,
-    mock_organic,
+    mock_candidate_urls,
     mock_analyze,
 ):
     """
@@ -111,39 +110,28 @@ def test_pipeline_runs_real_logic_and_saves_history(
 
     Will FAIL (RED) until scraper.py real implementation is in place.
     """
-    # --- External boundary: AI image analysis ---
+    # Step 1: AI analysis returns attributes
     mock_analyze.return_value = {
         "category": "accent chair",
         "color": "mustard yellow",
         "keywords": ["mid-century", "velvet"],
     }
 
-    # --- External boundary: SerpAPI organic search → one candidate URL ---
-    mock_organic.return_value = ["https://nordicliving.com/chairs/velvet-accent"]
+    # Step 2: fetch_candidate_urls returns metadata (link, title, source)
+    mock_candidate_urls.return_value = [
+        {"link": "https://nordicliving.com/chairs/velvet-accent", "title": "Velvet Accent Chair", "source": "Nordic Living"}
+    ]
 
-    # --- Network boundary: httpx inside scraper returns product HTML ---
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.headers = {"content-type": "text/html; charset=utf-8"}
-    mock_response.text = _VALID_PRODUCT_HTML
-
-    mock_client_instance = AsyncMock()
-    mock_client_instance.__aenter__ = AsyncMock(return_value=mock_client_instance)
-    mock_client_instance.__aexit__ = AsyncMock(return_value=False)
-    mock_client_instance.get = AsyncMock(return_value=mock_response)
-    mock_http_client.return_value = mock_client_instance
-
-    # --- External boundary: SerpAPI Shopping lookup ---
+    # Step 3: Shopping search uses metadata to find alternative
     mock_shopping.return_value = {
-        "name": "Velvet Accent Chair",
-        "brand": "Nordic Living",
-        "price": 849.00,
+        "name": "Alternative Velvet Chair",
+        "brand": "AltBrand",
+        "price": 199.99,
+        "link": "https://alt-store.com/chair",
         "rating": 4.8,
-        "reviewCount": 124,
-        "imageUrl": "https://example.com/img.jpg",
-        "link": "https://nordicliving.com/chairs/velvet",
-        "category": "Search Result",
-        "priceRange": "500-1000",
+        "reviewCount": 45,
+        "category": "Furniture",
+        "priceRange": "over-100",
     }
 
     with TestClient(app=app) as client:

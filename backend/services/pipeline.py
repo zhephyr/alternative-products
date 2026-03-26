@@ -19,8 +19,7 @@ import uuid
 
 from services.db import SessionDB
 from services.ai_agent import analyze_image
-from services.scraper import scrape_products_concurrently
-from services.serp_api import search_google_shopping, search_google_organic
+from services.serp_api import search_google_shopping, fetch_candidate_urls
 
 
 async def process_visual_search(session_id: str, image_bytes: bytes, db: SessionDB):
@@ -32,23 +31,21 @@ async def process_visual_search(session_id: str, image_bytes: bytes, db: Session
         # 1. Analyze image via Vision API to extract semantic product attributes.
         ai_data = await analyze_image(image_bytes)
 
-        # 2. Use AI-extracted attributes to find real candidate product URLs via
-        #    a Google organic search — replaces the former hard-coded mock URLs.
-        candidate_urls = await search_google_organic(ai_data)
+        # 2. Use AI-extracted attributes to find real candidate products via
+        #    a Google organic search — now returns list of dicts with metadata.
+        candidates = await fetch_candidate_urls(ai_data)
 
-        if not candidate_urls:
+        if not candidates:
             db.update_status(session_id, "completed")
             return
 
-        # 3. Scrape product pages concurrently (bounded by semaphore = 5).
-        #    scrape_products_concurrently already filters None / out-of-stock results.
-        scraped_products = await scrape_products_concurrently(candidate_urls)
-
-        # 4. For each scraped product, fetch SerpAPI Shopping data and stream
+        # 3. For each candidate product, fetch SerpAPI Shopping data and stream
         #    results into the session DB as they arrive.
-        async def fetch_and_save(product: dict):
-            # Formulate query from extracted brand + title.
-            query = f"{product.get('brand', '')} {product.get('title', '')}".strip()
+        async def fetch_and_save(candidate: dict):
+            # Formulate query from organic title + source (brand).
+            title = candidate.get("title", "")
+            source = candidate.get("source", "")
+            query = f"{source} {title}".strip()
 
             shopping_data = await search_google_shopping(query)
 
@@ -58,7 +55,7 @@ async def process_visual_search(session_id: str, image_bytes: bytes, db: Session
                 db.add_result(session_id, shopping_data)
 
         # Run SerpAPI lookups concurrently; ignore individual lookup failures.
-        tasks = [fetch_and_save(p) for p in scraped_products if p.get("title")]
+        tasks = [fetch_and_save(c) for c in candidates]
         await asyncio.gather(*tasks, return_exceptions=True)
 
     except Exception as e:

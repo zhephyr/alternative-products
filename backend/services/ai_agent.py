@@ -58,6 +58,7 @@ async def analyze_image(image_bytes: bytes, provider: str = "openai", client=Non
         elif content.startswith("```"):
             content = content[3:-3]
             
+        print(f"[PIPELINE_DEBUG] AI Analysis Content: {content}")
         return json.loads(content.strip())
         
     except Exception as e:
