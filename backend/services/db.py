@@ -45,7 +45,6 @@ class SessionDB:
             session["results"].append(result)
             SessionQuery = Query()
             self.sessions.update({"results": session["results"]}, SessionQuery.id == session_id)
-            print(f"[ATOMIC_LOG] [SESSION {session_id}] Result written to DB. Result count: {len(session['results'])}")
             
     def update_status(self, session_id: str, status: str):
         """Updates the top-level status of the session (e.g., 'processing' -> 'completed')."""

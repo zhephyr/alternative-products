@@ -28,7 +28,6 @@ async def stream_results(session_id: str, request: Request):
                 if not session:
                     yield "event: error\ndata: session not found\n\n"
                     break
-                print(f"[ATOMIC_LOG] [SESSION {session_id}] Current session: {session}")
 
                 results = session.get("results", [])
                 status = session.get("status")

@@ -25,7 +25,9 @@ async def analyze_image(image_bytes: bytes, provider: str = "openai", client=Non
   "color": "e.g., mustard yellow, matte black",
   "materials": ["e.g., velvet", "e.g., walnut wood", "e.g., brass"],
   "keywords": ["e.g., mid-century modern", "tufted", "minimalist"]
-}'''
+}
+
+Ensure each key has a value.'''
 
         if provider == "openai":
             if client is None:
