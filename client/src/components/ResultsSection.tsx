@@ -2,7 +2,7 @@
  * ResultsSection — displays the grid of Similar Matches.
  * - Hidden until an image is uploaded
  * - Shows a loading spinner for ~1.5s with mock data revealed after
- * - Filter bar (Price Range, Product Rating) + Sort By dropdown
+ * - Sort By dropdown
  */
 import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,8 +11,6 @@ import ProductModal from './ProductModal'
 import type { MockProduct } from '../data/mockProducts'
 
 type SortOption = 'relevant' | 'price-asc' | 'price-desc' | 'rating-desc'
-type PriceFilter = 'all' | 'under-100' | '100-500' | '500-1000' | 'over-1000'
-type RatingFilter = 'all' | '4.5+' | '4+' | '3+'
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'relevant', label: 'Most Relevant' },
@@ -21,25 +19,9 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'rating-desc', label: 'Product Rating: High to Low' },
 ]
 
-const PRICE_OPTIONS: { value: PriceFilter; label: string }[] = [
-  { value: 'all', label: 'All Prices' },
-  { value: 'under-100', label: 'Under $100' },
-  { value: '100-500', label: '$100 – $500' },
-  { value: '500-1000', label: '$500 – $1,000' },
-  { value: 'over-1000', label: 'Over $1,000' },
-]
-
-const RATING_OPTIONS: { value: RatingFilter; label: string }[] = [
-  { value: 'all', label: 'All Ratings' },
-  { value: '4.5+', label: '4.5+ Stars' },
-  { value: '4+', label: '4+ Stars' },
-  { value: '3+', label: '3+ Stars' },
-]
-
 function LoadingSpinner() {
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-5">
-      {/* Animated spinner ring using primary color */}
       <div
         className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin"
         style={{ borderColor: 'var(--color-primary)', borderTopColor: 'transparent' }}
@@ -94,46 +76,42 @@ interface ResultsSectionProps {
 
 export default function ResultsSection({ isVisible, isLoading, products }: ResultsSectionProps) {
   const [sort, setSort] = useState<SortOption>('relevant')
-  const [priceFilter, setPriceFilter] = useState<PriceFilter>('all')
-  const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all')
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null)
 
-  // Apply filters and sort
+  // Apply sort
   const displayedProducts = useMemo(() => {
-    let filtered = [...products]
+    let sorted = [...products]
 
-    // Price filter
-    if (priceFilter !== 'all') {
-      filtered = filtered.filter((p) => p.priceRange === priceFilter)
-    }
-
-    // Rating filter
-    const ratingMin =
-      ratingFilter === '4.5+' ? 4.5 : ratingFilter === '4+' ? 4 : ratingFilter === '3+' ? 3 : 0
-    filtered = filtered.filter((p) => p.rating >= ratingMin)
-
-    // Sort
     switch (sort) {
       case 'price-asc':
-        filtered.sort((a, b) => a.price - b.price)
+        sorted.sort((a, b) => {
+          const priceA = parseFloat(a.store.extracted_price.replace(/[^0-9.]/g, '')) || 0
+          const priceB = parseFloat(b.store.extracted_price.replace(/[^0-9.]/g, '')) || 0
+          return priceA - priceB
+        })
         break
       case 'price-desc':
-        filtered.sort((a, b) => b.price - a.price)
+        sorted.sort((a, b) => {
+          const priceA = parseFloat(a.store.extracted_price.replace(/[^0-9.]/g, '')) || 0
+          const priceB = parseFloat(b.store.extracted_price.replace(/[^0-9.]/g, '')) || 0
+          return priceB - priceA
+        })
         break
       case 'rating-desc':
-        filtered.sort((a, b) => b.rating - a.rating)
+        sorted.sort((a, b) => b.store.rating - a.store.rating)
         break
       default:
         break // 'relevant' — keep original order
     }
 
-    return filtered
-  }, [products, sort, priceFilter, ratingFilter])
+    return sorted
+  }, [products, sort])
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.section
+          key="results-grid"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
@@ -153,34 +131,12 @@ export default function ResultsSection({ isVisible, isLoading, products }: Resul
             </h2>
           </div>
 
-          {/* Filter + Sort bar */}
+          {/* Sort bar */}
           {!isLoading && (
             <div
               className="flex flex-wrap items-center gap-3 pb-8 mb-8 border-b"
               style={{ borderColor: 'var(--color-border)' }}
             >
-              <span className="text-sm font-semibold" style={{ color: 'var(--color-text-muted)' }}>
-                Filter:
-              </span>
-              <FilterSelect
-                id="price-filter"
-                value={priceFilter}
-                onChange={setPriceFilter}
-                options={PRICE_OPTIONS}
-              />
-              <FilterSelect
-                id="rating-filter"
-                value={ratingFilter}
-                onChange={setRatingFilter}
-                options={RATING_OPTIONS}
-              />
-
-              {/* Divider */}
-              <div
-                className="w-px h-6 mx-2 hidden sm:block"
-                style={{ backgroundColor: 'var(--color-border)' }}
-              />
-
               <span className="text-sm font-semibold" style={{ color: 'var(--color-text-muted)' }}>
                 Sort by:
               </span>
@@ -193,7 +149,7 @@ export default function ResultsSection({ isVisible, isLoading, products }: Resul
 
           {/* Products grid */}
           {!isLoading && (
-            <motion.div 
+            <motion.div
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
               initial="hidden"
               animate="visible"
@@ -207,28 +163,18 @@ export default function ResultsSection({ isVisible, isLoading, products }: Resul
                 }
               }}
             >
-              {displayedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onSelect={setSelectedProduct} />
+              {displayedProducts.map((product, idx) => (
+                <ProductCard key={product.id || idx} product={product} onSelect={setSelectedProduct} />
               ))}
             </motion.div>
           )}
 
-          {/* Empty state after filters */}
+          {/* Empty state */}
           {!isLoading && displayedProducts.length === 0 && (
             <div className="text-center py-16">
               <p className="text-lg font-semibold" style={{ color: 'var(--color-text-muted)' }}>
-                No products match your filters.
+                No similar products found.
               </p>
-              <button
-                className="mt-4 text-sm font-bold underline"
-                style={{ color: 'var(--color-primary)' }}
-                onClick={() => {
-                  setPriceFilter('all')
-                  setRatingFilter('all')
-                }}
-              >
-                Clear filters
-              </button>
             </div>
           )}
         </motion.section>
@@ -237,6 +183,7 @@ export default function ResultsSection({ isVisible, isLoading, products }: Resul
       {/* Product Detail Modal */}
       {selectedProduct && (
         <ProductModal
+          key="product-modal"
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
         />

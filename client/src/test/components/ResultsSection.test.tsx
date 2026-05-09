@@ -39,7 +39,6 @@ describe('ResultsSection', () => {
     expect(screen.getByText(`(${MOCK_PRODUCTS.length} items)`)).toBeInTheDocument()
 
     // Should show the filter options
-    expect(screen.getByText('Filter:')).toBeInTheDocument()
     expect(screen.getByText('Sort by:')).toBeInTheDocument()
   })
 })

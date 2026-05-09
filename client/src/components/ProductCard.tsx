@@ -1,14 +1,14 @@
 /**
  * ProductCard — displays a single product in the results grid.
  * Features:
- *   - 4:5 portrait image with scale-on-hover
+ *   - 4:5 portrait image carousel with smooth transitions
  *   - Brand label (uppercase, primary color)
- *   - Product name, price, star rating
+ *   - Product title, price, star rating
  *   - Favorite button (hover reveal)
  *   - External link icon
  */
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import type { MockProduct } from '../data/mockProducts'
 
@@ -43,6 +43,7 @@ function StarRating({ rating }: { rating: number }) {
 export default function ProductCard({ product, onSelect }: ProductCardProps) {
   const { token, isAuthenticated } = useAuth()
   const [isFavorited, setIsFavorited] = useState(false)
+  const [currentIdx, setCurrentIdx] = useState(0)
 
   const toggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -65,9 +66,9 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
           body: JSON.stringify({
             product_id: product.id,
             product_details: {
-              title: product.name,
-              price: `$${product.price.toLocaleString()}`,
-              image_url: product.imageUrl,
+              title: product.title,
+              price: product.store.extracted_price,
+              image_url: product.thumbnails[0] || '',
               source: product.brand
             }
           })
@@ -82,9 +83,18 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
       }
     } catch (err) {
       console.error('Failed to update favorite status', err)
-      // Revert if failed
       setIsFavorited(!newStatus)
     }
+  }
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrentIdx((prev) => (prev + 1) % product.thumbnails.length)
+  }
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrentIdx((prev) => (prev - 1 + product.thumbnails.length) % product.thumbnails.length)
   }
 
   return (
@@ -93,30 +103,71 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
       initial={{ opacity: 0, scale: 0.98, y: 16 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       whileHover={{ y: -8, boxShadow: '0 20px 60px rgba(0,0,0,0.10)' }}
-      transition={{ 
-        duration: 0.4, 
+      transition={{
+        duration: 0.4,
         ease: [0.23, 1, 0.32, 1],
         layout: { duration: 0.3 }
       }}
-      className="group relative rounded-lg border flex flex-col cursor-pointer"
+      className="group relative rounded-lg border flex flex-col cursor-pointer overflow-hidden"
       style={{
         backgroundColor: 'var(--color-card)',
         borderColor: '#e2e8f0',
       }}
       onClick={() => onSelect && onSelect(product)}
     >
-      {/* Image */}
-      <div className="aspect-[4/5] overflow-hidden rounded-t-lg relative">
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+      {/* Carousel Container */}
+      <div className="aspect-[4/5] overflow-hidden relative bg-gray-100">
+        <AnimatePresence initial={false} mode="wait">
+          <motion.img
+            key={currentIdx}
+            src={product.thumbnails[currentIdx]}
+            alt={`${product.title} - image ${currentIdx + 1}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full h-full object-cover"
+          />
+        </AnimatePresence>
+
+        {/* Carousel Controls (visible on hover) */}
+        {product.thumbnails.length > 1 && (
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center shadow-md pointer-events-auto hover:bg-white"
+              aria-label="Previous image"
+            >
+              <span className="material-symbols-outlined text-sm">chevron_left</span>
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center shadow-md pointer-events-auto hover:bg-white"
+              aria-label="Next image"
+            >
+              <span className="material-symbols-outlined text-sm">chevron_right</span>
+            </button>
+
+            {/* Indicators */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {product.thumbnails.map((_, i) => (
+                <div
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+                  style={{
+                    backgroundColor: i === currentIdx ? 'var(--color-primary)' : 'rgba(255,255,255,0.6)',
+                    transform: i === currentIdx ? 'scale(1.2)' : 'scale(1)'
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Favorite button — hover reveal */}
         <button
           onClick={toggleFavorite}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100"
+          className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 z-10"
           style={{
             backgroundColor: isFavorited ? 'var(--color-primary)' : 'rgba(255,255,255,0.90)',
           }}
@@ -138,45 +189,29 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
 
       {/* Card body */}
       <div className="p-5 flex flex-col gap-2 flex-1">
-        {/* Brand label */}
-        <p
-          className="text-xs font-bold tracking-wider uppercase"
-          style={{ color: 'var(--color-primary)' }}
-        >
+        <p className="text-xs font-bold tracking-wider uppercase" style={{ color: 'var(--color-primary)' }}>
           {product.brand}
         </p>
 
-        {/* Product name */}
-        <p
-          className="text-lg font-bold leading-snug line-clamp-1"
-          style={{ color: 'var(--color-text)' }}
-        >
-          {product.name}
+        <p className="text-lg font-bold leading-snug line-clamp-1" style={{ color: 'var(--color-text)' }}>
+          {product.title}
         </p>
 
-        {/* Rating */}
-        <StarRating rating={product.rating} />
+        <StarRating rating={product.store.rating} />
 
-        {/* Price + link */}
         <div className="flex items-center justify-between mt-auto pt-2">
           <span className="text-xl font-extrabold" style={{ color: 'var(--color-text)' }}>
-            ${product.price.toLocaleString()}
+            {product.store.extracted_price}
           </span>
           <button
             className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
             style={{ backgroundColor: 'var(--color-primary-light)' }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = 'var(--color-primary-light)')
-            }
-            aria-label={`View ${product.name} product page`}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-light)')}
+            aria-label={`View ${product.title} at ${product.store.name}`}
             id={`view-product-btn-${product.id}`}
           >
-            <span
-              className="material-symbols-outlined text-base leading-none transition-colors"
-              style={{ color: 'var(--color-primary)' }}
-              aria-hidden="true"
-            >
+            <span className="material-symbols-outlined text-base leading-none" style={{ color: 'var(--color-primary)' }}>
               open_in_new
             </span>
           </button>

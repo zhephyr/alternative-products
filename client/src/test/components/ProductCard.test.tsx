@@ -21,13 +21,15 @@ vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise
 const mockProduct: MockProduct = {
   id: 'test-id',
   brand: 'Acme Home',
-  name: 'Modern Accent Chair',
-  price: 299,
-  rating: 4.5,
-  imageUrl: 'https://example.com/chair.jpg',
-  priceRange: '100-500',
-  reviewCount: 100,
-  category: 'Furniture',
+  title: 'Modern Accent Chair',
+  thumbnails: ['https://example.com/chair.jpg'],
+  store: {
+    name: 'Acme Home',
+    extracted_price: '$299',
+    rating: 4.5,
+    logo: '#',
+    link: 'https://example.com/product'
+  }
 }
 
 describe('ProductCard', () => {
@@ -66,7 +68,7 @@ describe('ProductCard', () => {
   it('renders external link button', () => {
     render(<ProductCard product={mockProduct} />)
 
-    const linkBtn = screen.getByRole('button', { name: /View Modern Accent Chair product page/i })
+    const linkBtn = screen.getByRole('button', { name: /View Modern Accent Chair at Acme Home/i })
     expect(linkBtn).toBeInTheDocument()
   })
 })

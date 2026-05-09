@@ -70,7 +70,7 @@ export default function HomePage() {
 
       sse.addEventListener('new_product', (e) => {
         const newProduct = JSON.parse(e.data)
-        console.log(`[ATOMIC_LOG] [SSE] Received new_product: ${newProduct.name}`, newProduct)
+        console.log(`[ATOMIC_LOG] [SSE] Received new_product: ${newProduct.title}`, newProduct)
         setStreamedProducts(prev => [...prev, newProduct])
       })
 
