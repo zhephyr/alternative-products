@@ -33,26 +33,26 @@ export default function HomePage() {
     setUploadedImage(dataUrl)
     setStreamedProducts([])
     setIsSearching(true)
-    
+
     // Close existing stream if any
     if (eventSourceRef.current) {
-        eventSourceRef.current.close()
+      eventSourceRef.current.close()
     }
 
     try {
       // 1. POST image to backend
       const formData = new FormData()
       formData.append('image', file)
-      
+
       const res = await fetch(`${API_URL}/api/search`, {
         method: 'POST',
         body: formData
       })
-      
+
       if (!res.ok) throw new Error("Failed to upload image")
-      
+
       const { session_id } = await res.json()
-      
+
       // 2. Connect to SSE stream
       console.log(`[ATOMIC_LOG] Opening SSE connection for session: ${session_id}`)
       const sse = new EventSource(`${API_URL}/api/stream/${session_id}`)
@@ -67,25 +67,25 @@ export default function HomePage() {
         setIsSearching(false)
         sse.close()
       }
-      
+
       sse.addEventListener('new_product', (e) => {
         const newProduct = JSON.parse(e.data)
         console.log(`[ATOMIC_LOG] [SSE] Received new_product: ${newProduct.name}`, newProduct)
         setStreamedProducts(prev => [...prev, newProduct])
       })
-      
+
       sse.addEventListener('complete', () => {
         console.log(`[ATOMIC_LOG] [SSE] Received complete event`)
         setIsSearching(false)
         sse.close()
       })
-      
+
       sse.addEventListener('error', (e) => {
         console.error(`[ATOMIC_LOG] [SSE] Received error event`, e)
         setIsSearching(false)
         sse.close()
       })
-      
+
     } catch (err) {
       console.error(err)
       setIsSearching(false)
@@ -122,7 +122,7 @@ export default function HomePage() {
                 className="text-lg mt-6 leading-relaxed"
                 style={{ color: 'var(--color-text-muted)' }}
               >
-                Upload an image of an interior space or a piece of furniture to find similar
+                Upload an image of an interior space or a piece of furniture to find visually similar
                 high-quality products from our curated database.
               </p>
             </div>
@@ -132,8 +132,8 @@ export default function HomePage() {
           </section>
 
           {/* ── Results section (receives streaming data) ── */}
-          <ResultsSection 
-            isVisible={uploadedImage !== null} 
+          <ResultsSection
+            isVisible={uploadedImage !== null}
             isLoading={isSearching}
             products={streamedProducts}
           />

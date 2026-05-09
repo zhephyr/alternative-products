@@ -31,7 +31,7 @@ describe('HomePage', () => {
     )
 
     // Check Header
-    expect(screen.getAllByText('alt.it')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('pair.it')[0]).toBeInTheDocument()
     // Check Hero
     expect(screen.getByText(/Find your aesthetic/i)).toBeInTheDocument()
     // Check UploadZone
@@ -39,7 +39,7 @@ describe('HomePage', () => {
     // Check empty Results
     expect(screen.queryByText(/Similar Matches/)).not.toBeInTheDocument()
     // Check Footer
-    expect(screen.getByText('© 2026 alt.it')).toBeInTheDocument()
+    expect(screen.getByText('© 2026 pair.it')).toBeInTheDocument()
   })
 
   // We can't fully mock the file upload event easily here without mocking

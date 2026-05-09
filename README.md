@@ -1,8 +1,8 @@
-# alt.it — Visual Product Search SPA
+# pair.it — Visual Product Search SPA
 
 > Upload an image. Find the product. Instantly.
 
-**alt.it** is a refined, editorial-feeling product discovery tool for interior design enthusiasts. Upload any product image and the app uses AI to find visually similar products for sale — ranked by relevance, streamed in real time.
+**pair.it** is a refined, editorial-feeling product discovery tool for interior design enthusiasts. Upload any product image and the app uses AI to find visually similar products for sale — ranked by relevance, streamed in real time.
 
 ---
 

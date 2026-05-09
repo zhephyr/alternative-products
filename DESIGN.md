@@ -1,11 +1,11 @@
-# Design System: Visual Product Search SPA (alt.it)
+# Design System: Visual Product Search SPA (pair.it)
 **Project ID:** 3270885382127867718
 
 ---
 
 ## 1. Visual Theme & Atmosphere
 
-**alt.it** is a refined, editorial-feeling product discovery tool for interior design enthusiasts. The overall aesthetic is **airy and curated** — the UI steps back to showcase product photography, never competing with it. A signature **dot-grid background** (radial-gradient dots at 24px intervals) gives the canvas a subtle hand-drawn sketchbook quality, grounding the page without weight.
+**pair.it** is a refined, editorial-feeling product discovery tool for interior design enthusiasts. The overall aesthetic is **airy and curated** — the UI steps back to showcase product photography, never competing with it. A signature **dot-grid background** (radial-gradient dots at 24px intervals) gives the canvas a subtle hand-drawn sketchbook quality, grounding the page without weight.
 
 The header is **frosted glass** — white at 80% opacity with backdrop blur — reinforcing a sense of layered depth without hard dividers. The layout is wide and generous, capped at a 7xl container (≈1280px) with 24px horizontal gutters.
 
@@ -82,7 +82,7 @@ The app supports **three interchangeable color themes**, all sharing the same st
 | Hero headline ("Find your aesthetic") | `font-extrabold` (800) | 4xl mobile → 5xl desktop, tight tracking (`tracking-tight`) |
 | Hero keyword ("instantly") | `font-extrabold` (800) | Colored in primary + decorative underline in the accent color, 4px thick, 8px underline offset |
 | Section headings (e.g. "Similar Matches") | `font-bold` (700) | 2xl |
-| Brand logotype ("alt.it") | `font-extrabold` (800) | Lowercase only, `tracking-tighter` — intentional design choice |
+| Brand logotype ("pair.it") | `font-extrabold` (800) | Lowercase only, `tracking-tighter` — intentional design choice |
 | Nav links & filter labels | `font-semibold` (600) | Small (sm), muted slate |
 | Brand label on cards (e.g. "Nordic Living") | `font-bold` (700) | `text-xs`, ALL CAPS, widely letter-spaced (`tracking-wider`), primary color |
 | Card product name | `font-bold` (700) | `text-lg`, single-line clamped |
@@ -94,7 +94,7 @@ The app supports **three interchangeable color themes**, all sharing the same st
 ## 4. Component Stylings
 
 ### Logo / Brand Mark
-A distinctive mirrored-icon badge: two `chair` Material Symbols icons face each other symmetrically, divided by a thin white line (`w-[1px] h-6`), inside a `w-10 h-10 rounded-lg` square filled with the current primary color. The wordmark "alt.it" sits alongside in `font-extrabold tracking-tighter lowercase`.
+A distinctive mirrored-icon badge: two `chair` Material Symbols icons face each other symmetrically, divided by a thin white line (`w-[1px] h-6`), inside a `w-10 h-10 rounded-lg` square filled with the current primary color. The wordmark "pair.it" sits alongside in `font-extrabold tracking-tighter lowercase`.
 
 ### Navigation Header
 - **Position:** Sticky, `z-50`, sits above all content

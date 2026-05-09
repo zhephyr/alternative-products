@@ -7,8 +7,8 @@ import { ThemeProvider } from './context/ThemeProvider'
 // Mount the React application with ThemeProvider wrapping all routes
 import { AuthProvider } from './contexts/AuthContext'
 
-console.info(`[alt.it Client] Environment: ${import.meta.env.MODE}`)
-console.info('[alt.it Client] Application successfully mounted to React DOM.')
+console.info(`[pair.it Client] Environment: ${import.meta.env.MODE}`)
+console.info('[pair.it Client] Application successfully mounted to React DOM.')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
