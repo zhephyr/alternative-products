@@ -1,7 +1,7 @@
 /**
- * Header / Navigation bar for alt.it
+ * Header / Navigation bar for pair.it
  * - Frosted glass sticky header (bg-white/80 backdrop-blur)
- * - Logo mark: two mirrored chair icons + "alt.it" wordmark
+ * - Logo mark: two mirrored chair icons + "pair.it" wordmark
  * - Nav links: Usage History, Saved Searches
  * - Profile avatar placeholder
  * - Theme switcher dropdown (top-right)
@@ -22,7 +22,7 @@ const THEME_OPTIONS: { value: Theme; label: string; dot: string }[] = [
 
 function LogoBadge() {
   return (
-    <div className="flex items-center gap-2.5" aria-label="alt.it home">
+    <div className="flex items-center gap-2.5" aria-label="pair.it home">
       {/* Icon badge: two chair icons mirrored, filled with primary color */}
       <div
         className="w-10 h-10 rounded-lg flex items-center justify-center gap-0 flex-shrink-0"
@@ -50,7 +50,7 @@ function LogoBadge() {
         className="text-2xl font-extrabold tracking-tighter lowercase"
         style={{ color: 'var(--color-text)' }}
       >
-        alt.it
+        pair.it
       </span>
     </div>
   )
@@ -181,7 +181,7 @@ export default function Header() {
             {/* Theme & Profile / Auth Button */}
             <div className="flex items-center gap-3">
               <ThemeSwitcher />
-              
+
               {/* Profile or Login */}
               {isAuthenticated ? (
                 <div className="relative">
@@ -212,7 +212,7 @@ export default function Header() {
                       }}
                       role="menu"
                     >
-                      <div 
+                      <div
                         className="px-4 py-3 mb-1 border-b"
                         style={{ borderColor: 'var(--color-border)' }}
                       >
@@ -255,7 +255,7 @@ export default function Header() {
           </div>
         </div>
       </header>
-      
+
       {/* Conditionally render Modals */}
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} />

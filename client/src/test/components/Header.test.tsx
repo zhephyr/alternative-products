@@ -18,13 +18,13 @@ vi.spyOn(AuthContextModule, 'useAuth').mockImplementation(mockUseAuth)
 
 // Mock the CSS module if needed, though we use standard CSS
 describe('Header', () => {
-  it('renders alt.it logo and title', () => {
+  it('renders pair.it logo and title', () => {
     render(
       <ThemeProvider>
         <Header />
       </ThemeProvider>,
     )
-    expect(screen.getByText('alt.it')).toBeInTheDocument()
+    expect(screen.getByText('pair.it')).toBeInTheDocument()
     expect(screen.getAllByText('chair')[0]).toBeInTheDocument()
   })
 
@@ -77,18 +77,18 @@ describe('Header', () => {
       register: vi.fn(),
       isLoading: false
     })
-    
+
     render(<ThemeProvider><Header /></ThemeProvider>)
-    
+
     expect(screen.getByText('Usage History')).toBeInTheDocument()
     expect(screen.getByText('Saved Searches')).toBeInTheDocument()
-    
+
     const profileBtn = screen.getByLabelText(/User profile/i)
     expect(profileBtn).toBeInTheDocument()
-    
+
     // Clicking profile should open dropdown
     fireEvent.click(profileBtn)
-    
+
     expect(screen.getByText('testuser')).toBeInTheDocument()
     expect(screen.getByText('Logout')).toBeInTheDocument()
   })
