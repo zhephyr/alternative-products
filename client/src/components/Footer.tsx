@@ -1,5 +1,5 @@
 /**
- * Footer for pair.it — three-column layout (logo / nav links / social)
+ * Footer for alt.it — three-column layout (logo / nav links / social)
  * Semi-transparent white layered over the dot grid.
  */
 export default function Footer() {
@@ -30,7 +30,7 @@ export default function Footer() {
             className="text-lg font-extrabold tracking-tighter lowercase"
             style={{ color: 'var(--color-text)' }}
           >
-            pair.it
+            alt.it
           </span>
         </div>
 
@@ -50,7 +50,7 @@ export default function Footer() {
 
         {/* Social placeholder */}
         <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          © 2026 pair.it
+          © 2026 alt.it
         </p>
       </div>
     </footer>

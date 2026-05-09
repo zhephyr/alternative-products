@@ -13,10 +13,10 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("pair.it")
+logger = logging.getLogger("alt.it")
 logger.info("Initializing Backend Application")
 
-app = FastAPI(title="pair.it Backend API")
+app = FastAPI(title="alt.it Backend API")
 
 # Initialize Rate Limiter
 app.state.limiter = limiter

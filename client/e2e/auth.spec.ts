@@ -9,18 +9,18 @@ test.describe('Authentication Flow', () => {
     await page.goto('/');
 
     // Ensure the home page loaded
-    await expect(page.locator('text=pair.it').first()).toBeVisible();
+    await expect(page.locator('text=alt.it').first()).toBeVisible();
 
     // Click Log In
     await page.click('button:has-text("Log In")');
-
+    
     // Switch to Register mode in AuthModal
     await page.click('text=Create one');
 
     // Fill registration form
     await page.fill('input[type="text"]', testUsername);
     await page.fill('input[type="password"]', testPassword);
-
+    
     // Submit registration
     await page.click('button:has-text("Sign Up")');
 
