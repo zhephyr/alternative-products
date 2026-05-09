@@ -15,6 +15,7 @@ async def search_image(background_tasks: BackgroundTasks, image: UploadFile = Fi
     """
     Accepts an image upload, initializes a search session, and triggers processing.
     """
+    print(f"[ATOMIC_LOG] Entering search_image route handler", flush=True)
     session_id = str(uuid.uuid4())
     user_id = current_user["id"] if current_user else None
     
@@ -24,11 +25,13 @@ async def search_image(background_tasks: BackgroundTasks, image: UploadFile = Fi
     image_bytes = await image.read()
     
     # Spawn background orchestration task
+    print(f"[ATOMIC_LOG] [SESSION {session_id}] Triggering background_tasks.add_task...", flush=True)
     background_tasks.add_task(
         process_visual_search,
         session_id=session_id,
         image_bytes=image_bytes,
         db=db
     )
+    print(f"[ATOMIC_LOG] [SESSION {session_id}] Task added to background_tasks queue.", flush=True)
     
     return {"session_id": session_id}

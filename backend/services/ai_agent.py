@@ -15,6 +15,7 @@ async def analyze_image(image_bytes: bytes, provider: str = "openai", client=Non
         "keywords": []
     }
     
+    print(f"[ATOMIC_LOG] Entering analyze_image for provider: {provider}")
     try:
         base64_image = base64.b64encode(image_bytes).decode('utf-8')
         

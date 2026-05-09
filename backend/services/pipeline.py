@@ -27,13 +27,16 @@ async def process_visual_search(session_id: str, image_bytes: bytes, db: Session
     Background pipeline coordinating AI analysis, organic web search,
     product page scraping, and SerpAPI Shopping enrichment.
     """
+    print(f"[ATOMIC_LOG] [SESSION {session_id}] Entering process_visual_search")
     try:
         # 1. Analyze image via Vision API to extract semantic product attributes.
         ai_data = await analyze_image(image_bytes)
+        print(f"[ATOMIC_LOG] [SESSION {session_id}] AI Analysis Result: {ai_data}")
 
         # 2. Use AI-extracted attributes to find real candidate products via
         #    a Google organic search — now returns list of dicts with metadata.
         candidates = await fetch_candidate_urls(ai_data)
+        print(f"[ATOMIC_LOG] [SESSION {session_id}] Organic Candidates found: {len(candidates)}")
 
         if not candidates:
             db.update_status(session_id, "completed")
@@ -46,13 +49,17 @@ async def process_visual_search(session_id: str, image_bytes: bytes, db: Session
             title = candidate.get("title", "")
             source = candidate.get("source", "")
             query = f"{source} {title}".strip()
+            print(f"[ATOMIC_LOG] [SESSION {session_id}] Querying Shopping for: {query}")
 
             shopping_data = await search_google_shopping(query)
 
             if shopping_data:
                 # Assign a unique ID so the frontend can key on it.
                 shopping_data["id"] = str(uuid.uuid4())
+                print(f"[ATOMIC_LOG] [SESSION {session_id}] Shopping data found for '{query}': {shopping_data['name']}")
                 db.add_result(session_id, shopping_data)
+            else:
+                print(f"[ATOMIC_LOG] [SESSION {session_id}] No shopping data for '{query}'")
 
         # Run SerpAPI lookups concurrently; ignore individual lookup failures.
         tasks = [fetch_and_save(c) for c in candidates]

@@ -49,6 +49,7 @@ async def fetch_candidate_urls(ai_data: dict) -> list[dict]:
     color = ai_data.get("color", "")
     keywords = " ".join(ai_data.get("keywords", []))
     query = " ".join(filter(None, [color, category, keywords, "buy"])).strip()
+    print(f"[ATOMIC_LOG] Organic search query: {query}")
 
     params = {
         "engine": "google",
@@ -99,6 +100,7 @@ async def search_google_shopping(query: str) -> dict | None:
     Searches Google Shopping via SerpAPI and returns the best matching
     product data, or None if no results are found or a network error occurs.
     """
+    print(f"[ATOMIC_LOG] Shopping search query: {query}")
     params = {
         "engine": "google_shopping",
         "q": query,

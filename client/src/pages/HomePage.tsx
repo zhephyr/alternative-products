@@ -54,20 +54,34 @@ export default function HomePage() {
       const { session_id } = await res.json()
       
       // 2. Connect to SSE stream
+      console.log(`[ATOMIC_LOG] Opening SSE connection for session: ${session_id}`)
       const sse = new EventSource(`${API_URL}/api/stream/${session_id}`)
       eventSourceRef.current = sse
+
+      sse.onopen = () => {
+        console.log(`[ATOMIC_LOG] [SSE] Connection opened for session: ${session_id}`)
+      }
+
+      sse.onerror = (e) => {
+        console.error(`[ATOMIC_LOG] [SSE] Connection error/closed for session: ${session_id}`, e)
+        setIsSearching(false)
+        sse.close()
+      }
       
       sse.addEventListener('new_product', (e) => {
         const newProduct = JSON.parse(e.data)
+        console.log(`[ATOMIC_LOG] [SSE] Received new_product: ${newProduct.name}`, newProduct)
         setStreamedProducts(prev => [...prev, newProduct])
       })
       
       sse.addEventListener('complete', () => {
+        console.log(`[ATOMIC_LOG] [SSE] Received complete event`)
         setIsSearching(false)
         sse.close()
       })
       
-      sse.addEventListener('error', () => {
+      sse.addEventListener('error', (e) => {
+        console.error(`[ATOMIC_LOG] [SSE] Received error event`, e)
         setIsSearching(false)
         sse.close()
       })

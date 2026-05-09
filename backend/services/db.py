@@ -24,11 +24,13 @@ class SessionDB:
 
     def get_session(self, session_id: str):
         """Retrieves a session object by ID."""
+        self.sessions.clear_cache()
         Session = Query()
         result = self.sessions.search(Session.id == session_id)
         return result[0] if result else None
         
     def get_user_by_username(self, username: str):
+        self.users.clear_cache()
         User = Query()
         result = self.users.search(User.username == username)
         return result[0] if result else None
@@ -43,6 +45,7 @@ class SessionDB:
             session["results"].append(result)
             SessionQuery = Query()
             self.sessions.update({"results": session["results"]}, SessionQuery.id == session_id)
+            print(f"[ATOMIC_LOG] [SESSION {session_id}] Result written to DB. Result count: {len(session['results'])}")
             
     def update_status(self, session_id: str, status: str):
         """Updates the top-level status of the session (e.g., 'processing' -> 'completed')."""
@@ -53,6 +56,7 @@ class SessionDB:
     # Favorites Methods
     # ----------------
     def add_favorite(self, user_id: str, product_id: str, product_details: dict):
+        self.favorites.clear_cache()
         Favorite = Query()
         # Prevent duplicates
         if self.favorites.contains((Favorite.user_id == user_id) & (Favorite.product_id == product_id)):
@@ -71,6 +75,7 @@ class SessionDB:
         return len(removed) > 0
 
     def get_user_favorites(self, user_id: str):
+        self.favorites.clear_cache()
         Favorite = Query()
         return self.favorites.search(Favorite.user_id == user_id)
 
@@ -85,6 +90,7 @@ class SessionDB:
         })
 
     def get_user_history(self, user_id: str):
+        self.history.clear_cache()
         History = Query()
         # Return reverse chronological (newest first based on insertion order)
         docs = self.history.search(History.user_id == user_id)

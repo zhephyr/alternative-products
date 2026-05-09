@@ -23,12 +23,13 @@ async def stream_results(session_id: str, request: Request):
             while True:
                 if await request.is_disconnected():
                     break
-                    
+                
                 session = db.get_session(session_id)
                 if not session:
                     yield "event: error\ndata: session not found\n\n"
                     break
-                    
+                print(f"[ATOMIC_LOG] [SESSION {session_id}] Current session: {session}")
+
                 results = session.get("results", [])
                 status = session.get("status")
                 
@@ -36,14 +37,17 @@ async def stream_results(session_id: str, request: Request):
                 if len(results) > last_yielded_index:
                     while last_yielded_index < len(results):
                         new_item = results[last_yielded_index]
+                        print(f"[ATOMIC_LOG] [SESSION {session_id}] Yielding event: new_product | Item: {new_item.get('name')}")
                         yield f"event: new_product\ndata: {json.dumps(new_item)}\n\n"
                         last_yielded_index += 1
                 
                 # Check completion status
                 if status == "completed":
+                    print(f"[ATOMIC_LOG] [SESSION {session_id}] Yielding event: complete")
                     yield "event: complete\ndata: search finished\n\n"
                     break
                 elif status == "error":
+                    print(f"[ATOMIC_LOG] [SESSION {session_id}] Yielding event: error")
                     yield "event: error\ndata: pipeline error\n\n"
                     break
                     
